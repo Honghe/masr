@@ -1,3 +1,5 @@
-torch==1.0.1
+torch
 librosa
 numpy
+tensorboardX
+python-Levenshtein-wheels

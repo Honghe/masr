@@ -1,3 +1,5 @@
+import os
+
 import torch
 import librosa
 import wave
@@ -15,6 +17,7 @@ win_length = n_fft
 hop_length = int(sample_rate * window_stride)
 window = "hamming"
 
+DATA_BASE_PATH = '/home/ubuntu/honghe/data/asr/data_aishell'
 
 def load_audio(wav_path, normalize=True):  # -> numpy array
     with wave.open(wav_path) as wav:
@@ -45,7 +48,9 @@ class MASRDataset(Dataset):
     def __init__(self, index_path, labels_path):
         with open(index_path) as f:
             idx = f.readlines()
-        idx = [x.strip().split(",", 1) for x in idx]
+
+        if DATA_BASE_PATH:
+            idx = [[os.path.join(DATA_BASE_PATH, p) for p in x.strip().split(",", 1)] for x in idx]
         self.idx = idx
         with open(labels_path) as f:
             labels = json.load(f)
@@ -94,4 +99,3 @@ class MASRDataLoader(DataLoader):
     def __init__(self, *args, **kwargs):
         super(MASRDataLoader, self).__init__(*args, **kwargs)
         self.collate_fn = _collate_fn
-

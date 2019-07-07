@@ -14,9 +14,9 @@ def train(
     model,
     epochs=1000,
     batch_size=64,
-    train_index_path="/home/lukhy/data_aishell/train-sort.manifest",
-    dev_index_path="/home/lukhy/data_aishell/dev.manifest",
-    labels_path="/home/lukhy/data_aishell/labels.json",
+    train_index_path="./data/train.csv",
+    dev_index_path="./data/dev.csv",
+    labels_path="./data/labels.json",
     learning_rate=0.6,
     momentum=0.8,
     max_grad_norm=0.2,
@@ -110,7 +110,7 @@ def eval(model, dataloader):
 
 
 if __name__ == "__main__":
-    with open("/home/lukhy/data_aishell/labels.json") as f:
+    with open("./data/labels.json") as f:
         vocabulary = json.load(f)
         vocabulary = "".join(vocabulary)
     model = GatedConv(vocabulary)
