@@ -1,6 +1,8 @@
 import torch
 from flask import Flask, request
 import _init_path
+
+import beamdecode
 from models.conv import GatedConv
 import sys
 import json
@@ -14,11 +16,11 @@ print("Model loaded")
 app = Flask(__name__)
 
 
-# @app.route("/recognize", methods=["POST"])
-# def recognize():
-#     f = request.files["file"]
-#     f.save("test.wav")
-#     return beamdecode.predict("test.wav")
+@app.route("/recognize", methods=["POST"])
+def recognize():
+    f = request.files["file"]
+    f.save("test.wav")
+    return beamdecode.predict("test.wav")
 
 with open("./data/labels.json") as f:
     vocabulary = json.load(f)
@@ -28,7 +30,7 @@ state_dict = torch.load("pretrained/model_57.pth")
 model.load_state_dict(state_dict)
 model.eval()
 
-@app.route("/recognize", methods=["POST"])
+@app.route("/am", methods=["POST"])
 def recognize_am():
     f = request.files["file"]
     f.save("test.wav")
