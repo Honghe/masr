@@ -120,10 +120,16 @@ def eval(model, dataloader):
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='train model')
+    parser.add_argument('-m', default=-1, type=int, help='saved model to load', )
+    args = parser.parse_args()
+    epoch_load = args.m
+
     with open("./data/labels.json") as f:
         vocabulary = json.load(f)
         vocabulary = "".join(vocabulary)
     model = GatedConv(vocabulary)
     model.to("cuda")
-    epoch_load = int(sys.argv[1])
+
     train(model, epoch_load=epoch_load)
