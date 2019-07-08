@@ -41,11 +41,17 @@ def parse_transcript_dict() -> dict:
     return d
 
 
-def parse_vocabulary(ll: list) -> set:
+def parse_vocabulary(ll: list) -> list:
     s = set()
     for line in ll:
         s.update(set(line))
-    return s
+
+    vocab_list = list(s)
+    # 汉字按拼音排序
+    vocab_list = sorted(vocab_list, key=lambda c: pinyin(c, style=Style.TONE3)[0])
+    # '_', // 第一个字符表示CTC空字符，可以随便设置，但不要和其他字符重复。
+    vocab_list.insert(0, '_')
+    return vocab_list
 
 
 def parse_data_tree(sub: str) -> dict:
@@ -69,10 +75,7 @@ def save_parsed_dataset(wav_dict, transcript_dict, filename):
                 print(e)
 
 
-def save_labels_json(vocabulary, filename):
-    vocab_list = list(vocabulary)
-    # 汉字按拼音排序
-    vocab_list = sorted(vocab_list, key=lambda c: pinyin(c, style=Style.TONE3)[0])
+def save_labels_json(vocab_list, filename):
     vocab_json = json.dumps(vocab_list, ensure_ascii=False, indent=2)
     with open(os.path.join(OUTPUT_DATA_DIR, filename), 'w') as f:
         f.write(vocab_json + '\n')
