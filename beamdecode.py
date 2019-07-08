@@ -1,3 +1,5 @@
+import json
+
 import _init_path
 import torch
 import feature
@@ -14,7 +16,12 @@ beam_width = 32
 num_processes = 4
 blank_index = 0
 
-model = GatedConv.load("pretrained/gated-conv.pth")
+with open("./data/labels.json") as f:
+    vocabulary = json.load(f)
+    vocabulary = "".join(vocabulary)
+model = GatedConv(vocabulary)
+state_dict = torch.load("pretrained/model_57.pth")
+model.load_state_dict(state_dict)
 model.eval()
 
 decoder = CTCBeamDecoder(
