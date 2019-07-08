@@ -1,26 +1,31 @@
+import json
+import sys
+
+import tensorboardX as tensorboard
 import torch
 import torch.nn as nn
-import data
-from models.conv import GatedConv
-from tqdm import tqdm
-from decoder import GreedyDecoder
-from warpctc_pytorch import CTCLoss
-import tensorboardX as tensorboard
 import torch.nn.functional as F
-import json
+from tqdm import tqdm
+from warpctc_pytorch import CTCLoss
+
+import data
+from decoder import GreedyDecoder
+from models.conv import GatedConv
 
 
 def train(
-    model,
-    epochs=1000,
-    batch_size=64,
-    train_index_path="./data/train.csv",
-    dev_index_path="./data/dev.csv",
-    labels_path="./data/labels.json",
-    learning_rate=0.6,
-    momentum=0.8,
-    max_grad_norm=0.2,
-    weight_decay=0,
+        model,
+        epochs=1000,
+        batch_size=64,
+        train_index_path="./data/train.csv",
+        dev_index_path="./data/dev.csv",
+        labels_path="./data/labels.json",
+        learning_rate=0.6,
+        momentum=0.8,
+        max_grad_norm=0.2,
+        weight_decay=0,
+        epoch_load=-1
+
 ):
     train_dataset = data.MASRDataset(train_index_path, labels_path)
     batchs = (len(train_dataset) + batch_size - 1) // batch_size
@@ -46,7 +51,12 @@ def train(
     # lr_sched = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.985)
     writer = tensorboard.SummaryWriter()
     gstep = 0
-    for epoch in range(epochs):
+    epoch_start = 0
+    if epoch_load >= 0:
+        epoch_start = epoch_load + 1
+        model.load_state_dict(torch.load("pretrained/model_{}.pth".format(epoch_load)))
+        gstep = epoch_start * batchs
+    for epoch in range(epoch_start, epochs):
         epoch_loss = 0
         if epoch > 0:
             train_dataloader = train_dataloader_shuffle
@@ -75,7 +85,7 @@ def train(
         writer.add_scalar("loss/epoch", epoch_loss, epoch)
         writer.add_scalar("cer/epoch", cer, epoch)
         print("Epoch {}: Loss= {}, CER = {}".format(epoch, epoch_loss, cer))
-        torch.save(model, "pretrained/model_{}.pth".format(epoch))
+        torch.save(model.state_dict(), "pretrained/model_{}.pth".format(epoch))
 
 
 def get_lr(optimizer):
@@ -97,7 +107,7 @@ def eval(model, dataloader):
             ys = []
             offset = 0
             for y_len in y_lens:
-                ys.append(y[offset : offset + y_len])
+                ys.append(y[offset: offset + y_len])
                 offset += y_len
             out_strings, out_offsets = decoder.decode(outs, out_lens)
             y_strings = decoder.convert_to_strings(ys)
@@ -115,4 +125,5 @@ if __name__ == "__main__":
         vocabulary = "".join(vocabulary)
     model = GatedConv(vocabulary)
     model.to("cuda")
-    train(model)
+    epoch_load = int(sys.argv[1])
+    train(model, epoch_load=epoch_load)
