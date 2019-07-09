@@ -19,10 +19,10 @@ blank_index = 0
 with open("./data/labels.json") as f:
     vocabulary = json.load(f)
     vocabulary = "".join(vocabulary)
-model = GatedConv(vocabulary)
-state_dict = torch.load("pretrained/model_57.pth")
-model.load_state_dict(state_dict)
-model.eval()
+    model = GatedConv(vocabulary)
+    state_dict = torch.load("pretrained/model_41.pth")
+    model.load_state_dict(state_dict)
+    model.eval()
 
 decoder = CTCBeamDecoder(
     model.vocabulary,
