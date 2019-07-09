@@ -21,7 +21,6 @@ class BeamDecode():
     def init(self, epoch_num=0):
         with open("./data/labels.json") as f:
             vocabulary = json.load(f)
-            vocabulary = "".join(vocabulary)
             model = GatedConv(vocabulary)
             state_dict = torch.load("pretrained/model_{}.pth".format(epoch_num))
             model.load_state_dict(state_dict)

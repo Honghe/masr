@@ -23,7 +23,7 @@ from utils import strQ2B, seg_char
 
 DATA_BASE_PATH = '/home/ubuntu/honghe/data/asr/data_aishell'
 
-OUTPUT_DATA_DIR = 'data_pinyin'
+OUTPUT_DATA_DIR = 'data'
 train_filename = 'train.csv'
 dev_filename = 'dev.csv'
 labels_filename = 'labels.json'

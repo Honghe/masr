@@ -31,13 +31,13 @@ class MASRModel(nn.Module):
         texts = []
         for idx, out_len in zip(idxs, yp_lens):
             idx = idx[:out_len]
-            text = ""
+            text = []
             last = None
             for i in idx:
                 if i.item() not in (last, self.blank):
-                    text += self.vocabulary[i.item()]
+                    text.append(self.vocabulary[i.item()])
                 last = i
-            texts.append(text)
+            texts.append(' '.join(text))
         return texts
 
     def decode(self, *outputs):  # texts -> list of size B

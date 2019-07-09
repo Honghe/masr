@@ -16,10 +16,10 @@ from models.conv import GatedConv
 def train(
         model,
         epochs=1000,
-        batch_size=64,
-        train_index_path="./data_pinyin/train.csv",
-        dev_index_path="./data_pinyin/dev.csv",
-        labels_path="./data_pinyin/labels.json",
+        batch_size=112,
+        train_index_path="./data/train.csv",
+        dev_index_path="./data/dev.csv",
+        labels_path="./data/labels.json",
         learning_rate=0.6,
         momentum=0.8,
         max_grad_norm=0.2,
@@ -114,6 +114,8 @@ def eval(model, dataloader):
             for pred, truth in zip(out_strings, y_strings):
                 trans, ref = pred[0], truth[0]
                 cer += decoder.cer(trans, ref) / float(len(ref))
+            # only print one to view
+            print('trans, ref {}'.format((trans, ref)))
         cer /= len(dataloader.dataset)
     model.train()
     return cer
@@ -128,7 +130,6 @@ if __name__ == "__main__":
 
     with open("./data/labels.json") as f:
         vocabulary = json.load(f)
-        vocabulary = "".join(vocabulary)
     model = GatedConv(vocabulary)
     model.to("cuda")
 

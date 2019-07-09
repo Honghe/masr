@@ -63,7 +63,6 @@ class MASRDataset(Dataset):
         wav = load_audio(wav)
         spect = spectrogram(wav)
         transcript = list(filter(None, [self.labels.get(x) for x in transcript]))
-
         return spect, transcript
 
     def __len__(self):
