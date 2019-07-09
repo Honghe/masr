@@ -97,7 +97,7 @@ def eval(model, dataloader):
     model.eval()
     decoder = GreedyDecoder(dataloader.dataset.labels_str)
     cer = 0
-    print("decoding")
+    print("eval")
     with torch.no_grad():
         for i, (x, y, x_lens, y_lens) in tqdm(enumerate(dataloader)):
             x = x.to("cuda")
