@@ -1,10 +1,8 @@
 from flask import Flask, request
 
-print("Loading model...")
-import beamdecode
+from beamdecode import BeamDecode
 
-print("Model loaded")
-
+beamdecode = BeamDecode()
 app = Flask(__name__)
 
 
@@ -26,4 +24,16 @@ def recognize_am():
     return text
 
 
-app.run("0.0.0.0", debug=True)
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser(description='train model')
+    parser.add_argument('-m', default=0, type=int, help='saved model to load', )
+    args = parser.parse_args()
+    epoch_load = args.m
+
+    print("Loading model {}...".format(epoch_load))
+    beamdecode.init(epoch_load)
+    print("Model loaded")
+
+    app.run("0.0.0.0", debug=False)
