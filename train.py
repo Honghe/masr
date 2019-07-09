@@ -77,7 +77,7 @@ def train(
             gstep += 1
             print(
                 "[{}/{}][{}/{}]\tLoss = {}".format(
-                    epoch + 1, epochs, i, int(batchs), loss.item()
+                    epoch, epochs, i, int(batchs), loss.item()
                 )
             )
         epoch_loss = epoch_loss / batchs
