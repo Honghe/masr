@@ -51,7 +51,7 @@ class MASRDataset(Dataset):
 
         if DATA_BASE_PATH:
             idx = [x.strip().split(",", 1) for x in idx]
-            idx = [[os.path.join(DATA_BASE_PATH, p), s]for p, s in idx]
+            idx = [[os.path.join(DATA_BASE_PATH, p), s.split(' ')]for p, s in idx]
         self.idx = idx
         with open(labels_path) as f:
             labels = json.load(f)

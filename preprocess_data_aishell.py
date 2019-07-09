@@ -19,13 +19,29 @@ import json
 import os
 from pypinyin import pinyin, Style
 
+from utils import strQ2B, seg_char
+
 DATA_BASE_PATH = '/home/ubuntu/honghe/data/asr/data_aishell'
 
-OUTPUT_DATA_DIR = 'data'
+OUTPUT_DATA_DIR = 'data_pinyin'
 train_filename = 'train.csv'
 dev_filename = 'dev.csv'
 labels_filename = 'labels.json'
 
+def cn2pinyin(chars):
+    # han先进行中文分字，并过滤空格
+    chars = strQ2B(chars)
+    chars = seg_char(chars)
+    pny = [i[0] for i in pinyin(chars, style=Style.TONE3, heteronym=False)]
+
+    # 拼音与中文转录是否分字后长度一样
+    if len(pny) != len(chars):
+        raise Exception('not same len: {}\n{}'.format(' '.join(pny), chars))
+
+    # 使用[1-4]表示声调，其中不加数字表示轻声 >> 使用[1-5]，其中5表示轻声。
+    # 与中文分字对应的即表示是英文，就不加音标
+    pny = [v + '5' if v != chars[i] and v[-1] not in '1234' else v for i, v in enumerate(pny)]
+    return pny
 
 def parse_transcript_dict() -> dict:
     d = {}
@@ -36,6 +52,8 @@ def parse_transcript_dict() -> dict:
             basename, transcript = line.split(' ', 1)
             transcript = transcript.strip()
             transcript = transcript.replace(' ', '')
+            # to pinyin
+            transcript = cn2pinyin(transcript)
             d[basename] = transcript
             line = f.readline().strip()
     return d
@@ -70,7 +88,7 @@ def save_parsed_dataset(wav_dict, transcript_dict, filename):
     with open(os.path.join(OUTPUT_DATA_DIR, filename), 'w') as f:
         for k in wav_dict:
             try:
-                f.write(wav_dict[k] + ',' + transcript_dict[k] + '\n')
+                f.write(wav_dict[k] + ',' + ' '.join(transcript_dict[k]) + '\n')
             except KeyError as e:
                 print(e)
 
