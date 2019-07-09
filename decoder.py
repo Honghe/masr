@@ -96,7 +96,7 @@ class GreedyDecoder(Decoder):
             return strings
 
     def process_string(self, sequence, size, remove_repetitions=False):
-        string = ""
+        string = []
         offsets = []
         for i in range(size):
             char = self.int_to_char[sequence[i].item()]
@@ -109,7 +109,7 @@ class GreedyDecoder(Decoder):
                 ):
                     pass
                 else:
-                    string = string + char
+                    string.append(char)
                     offsets.append(i)
         return string, torch.tensor(offsets, dtype=torch.int)
 

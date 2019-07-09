@@ -1,5 +1,4 @@
 import json
-import sys
 
 import tensorboardX as tensorboard
 import torch
@@ -11,6 +10,7 @@ from warpctc_pytorch import CTCLoss
 import data
 from decoder import GreedyDecoder
 from models.conv import GatedConv
+from utils import levenshtein
 
 
 def train(
@@ -113,7 +113,7 @@ def eval(model, dataloader):
             y_strings = decoder.convert_to_strings(ys)
             for pred, truth in zip(out_strings, y_strings):
                 trans, ref = pred[0], truth[0]
-                cer += decoder.cer(trans, ref) / float(len(ref))
+                cer += levenshtein(trans, ref) / float(len(ref))
             # only print one to view
             print('trans, ref {}'.format((trans, ref)))
         cer /= len(dataloader.dataset)
@@ -123,6 +123,7 @@ def eval(model, dataloader):
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description='train model')
     parser.add_argument('-m', default=-1, type=int, help='saved model to load', )
     args = parser.parse_args()

@@ -22,7 +22,7 @@ class BeamDecode():
         with open("./data/labels.json") as f:
             vocabulary = json.load(f)
             model = GatedConv(vocabulary)
-            state_dict = torch.load("pretrained/model_{}.pth".format(epoch_num))
+            state_dict = torch.load("pretrained/model_{}.pth".format(epoch_num), map_location=lambda storage, loc: storage)
             model.load_state_dict(state_dict)
             model.eval()
             self.model = model
