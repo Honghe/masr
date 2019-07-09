@@ -1,11 +1,10 @@
-import os
-
-import torch
-import librosa
-import wave
-import numpy as np
-import scipy
 import json
+import os
+import wave
+
+import librosa
+import numpy as np
+import torch
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 
@@ -18,6 +17,7 @@ hop_length = int(sample_rate * window_stride)
 window = "hamming"
 
 DATA_BASE_PATH = '/home/ubuntu/honghe/data/asr/data_aishell'
+
 
 def load_audio(wav_path, normalize=True):  # -> numpy array
     with wave.open(wav_path) as wav:
@@ -50,7 +50,8 @@ class MASRDataset(Dataset):
             idx = f.readlines()
 
         if DATA_BASE_PATH:
-            idx = [[os.path.join(DATA_BASE_PATH, p) for p in x.strip().split(",", 1)] for x in idx]
+            idx = [x.strip().split(",", 1) for x in idx]
+            idx = [[os.path.join(DATA_BASE_PATH, p), s]for p, s in idx]
         self.idx = idx
         with open(labels_path) as f:
             labels = json.load(f)
