@@ -29,9 +29,6 @@ if __name__ == '__main__':
     meta_data = pd.read_csv(meta_data_file_path, sep='\t', header=None)
     cers = []
     for i in meta_data.index[:11]:
-        print(i)
-        if i == 2:
-            continue
         filename, pnyn, chars = meta_data.loc[i]
         f_path = os.path.join(audio_dir, filename)
         y_p = asr(f_path)
