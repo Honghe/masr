@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm
-from warpctc_pytorch import CTCLoss
 
 import data
 from decoder import GreedyDecoder
@@ -47,7 +46,7 @@ def train(
         nesterov=True,
         weight_decay=weight_decay,
     )
-    ctcloss = CTCLoss(size_average=True)
+    ctcloss = nn.CTCLoss(blank=0, reduction='mean')
     # lr_sched = torch.optim.lr_scheduler.ExponentialLR(optimizer, 0.985)
     writer = tensorboard.SummaryWriter()
     gstep = 0
@@ -67,7 +66,8 @@ def train(
             x = x.to("cuda")
             out, out_lens = model(x, x_lens)
             out = out.transpose(0, 1).transpose(0, 2)
-            loss = ctcloss(out, y, out_lens, y_lens)
+            out_log = F.log_softmax(out, dim=-1)
+            loss = ctcloss(out_log, y, out_lens, y_lens)
             optimizer.zero_grad()
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
@@ -131,5 +131,4 @@ if __name__ == "__main__":
         vocabulary = "".join(vocabulary)
     model = GatedConv(vocabulary)
     model.to("cuda")
-
     train(model, epoch_load=epoch_load)
